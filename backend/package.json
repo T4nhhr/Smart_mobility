@@ -1,0 +1,34 @@
+{
+  "name": "urbanmove-api",
+  "version": "1.0.0",
+  "description": "UrbanMove Fleet Tracking API",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.1033.0",
+    "@aws-sdk/client-dynamodb": "^3.1033.0",
+    "@aws-sdk/client-kinesis": "^3.1033.0",
+    "@aws-sdk/lib-dynamodb": "^3.1033.0",
+    "aws-jwt-verify": "^5.1.1",
+    "aws-sdk": "^2.1693.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.2",
+    "express-validator": "^7.3.2",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.10.1",
+    "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

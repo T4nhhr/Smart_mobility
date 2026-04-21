@@ -1,0 +1,103 @@
+FINAL PROJECT
+Cloud Native Smart Mobility Platform Design and Implementation
+1. Project Objective
+The objective of this final project is to design, implement, and evaluate a cloud native
+platform supporting intelligent urban mobility services.
+Students will work in teams to architect and prototype a scalable cloud system capable of
+managing real time transportation data, connected mobility services, and intelligent decision
+making mechanisms within a smart city environment.
+This final project requires both:
+• a complete cloud architecture design
+• a functional implementation prototype
+• an academic implementation report
+• a technical oral presentation
+The project evaluates the ability to transform theoretical cloud computing concepts into a
+realistic production oriented system.
+2. Project Context
+Urban transportation systems increasingly rely on connected infrastructures integrating public
+transportation networks, shared mobility services, IoT sensors, and large scale analytics
+platforms.
+A fictional smart city authority named UrbanMove plans to deploy a Cloud Based Smart
+Mobility Management Platform designed to:
+• collect mobility data from heterogeneous sources
+• process real time transportation events
+• optimize traffic and mobility flows
+• provide intelligent routing recommendations
+• ensure system availability and operational resilience
+• maintain strong cybersecurity and data protection guarantees
+The system must support interactions between mobile users, connected vehicles, operational
+dashboards, and analytics services hosted in the cloud.
+Students must design and implement a cloud architecture capable of supporting these
+requirements.3. Functional Requirements
+The proposed platform must include at minimum:
+• Real time data ingestion from simulated or generated mobility sources
+• A user service accessible through API or web interface
+• Persistent data storage mechanisms
+• Data processing or analytics capabilities
+• Authentication and authorization mechanisms
+• Monitoring and observability services
+Possible application examples include congestion monitoring, intelligent route
+recommendation, fleet supervision dashboards, or predictive mobility analytics.
+4. Cloud Architecture Requirements
+The architecture must explicitly address the following dimensions.
+Scalability
+The system must dynamically adapt to workload variations and increasing numbers of
+connected entities.
+High Availability
+Architectural decisions must ensure service continuity using redundancy, load balancing, or
+distributed deployment strategies.
+Security
+Students must define and justify:
+• identity and access management
+• secure networking configuration
+• encryption mechanisms
+• protected API exposure
+• threat mitigation strategies
+Cost Optimization
+The architecture must demonstrate efficient resource allocation and controlled cloud
+consumption.Observability
+Monitoring, logging, and performance tracking mechanisms must be integrated.
+Disaster Recovery
+Backup policies and recovery objectives must be clearly defined.
+5. Implementation Requirement
+Each group must deploy a working prototype on a cloud environment such as:
+• AWS
+• Microsoft Azure
+• Google Cloud
+• Kubernetes based private cloud
+The implementation must include:
+• containerized services
+• automated or reproducible deployment
+• configured cloud networking
+• accessible application endpoints
+• monitoring or logging visualization
+Mobility data sources may be simulated if necessary.
+6. Architecture Design Deliverable
+Students must produce a detailed architecture diagram presenting:
+• system components
+• communication flows
+• compute and storage layers
+• networking configuration
+• security zones
+• external integrations
+The diagram must clearly demonstrate cloud architecture principles similar in rigor to the
+architecture reasoning expected in the laboratory activities described in the course material7. Implementation Report
+A structured academic report in PDF format must include the following sections.
+Introduction
+Problem definition and objectives.
+System Architecture
+Detailed architectural description and justification.
+Technology Stack
+Cloud services, frameworks, and deployment tools.
+Implementation Process
+Deployment workflow and configuration decisions.
+Security Design
+Threat analysis and implemented protection mechanisms.
+Scalability Strategy
+Expected behavior under workload growth.
+Cost Analysis
+Estimated operational and infrastructure considerations.
+Disaster Recovery Strategy
+Continuity and resilience mechanisms.
+Lessons Learned
+Technical challenges and architectural trade offs.
