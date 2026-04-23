@@ -23,7 +23,7 @@ awslocal dynamodb create-table \
   --key-schema AttributeName=vehicleId,KeyType=HASH \
   --billing-mode PAY_PER_REQUEST \
   --region $REGION \
-  --no-cli-pager 2>/dev/null || echo "  Vehicles table already exists"
+  2>/dev/null || echo "  Vehicles table already exists"
 
 # Telemetry table (vehicleId + timestamp as composite key)
 awslocal dynamodb create-table \
@@ -36,7 +36,7 @@ awslocal dynamodb create-table \
     AttributeName=timestamp,KeyType=RANGE \
   --billing-mode PAY_PER_REQUEST \
   --region $REGION \
-  --no-cli-pager 2>/dev/null || echo "  Telemetry table already exists"
+  2>/dev/null || echo "  Telemetry table already exists"
 
 # Routes table
 awslocal dynamodb create-table \
@@ -46,7 +46,7 @@ awslocal dynamodb create-table \
   --key-schema AttributeName=routeId,KeyType=HASH \
   --billing-mode PAY_PER_REQUEST \
   --region $REGION \
-  --no-cli-pager 2>/dev/null || echo "  Routes table already exists"
+  2>/dev/null || echo "  Routes table already exists"
 
 # Alerts table
 awslocal dynamodb create-table \
@@ -56,7 +56,7 @@ awslocal dynamodb create-table \
   --key-schema AttributeName=alertId,KeyType=HASH \
   --billing-mode PAY_PER_REQUEST \
   --region $REGION \
-  --no-cli-pager 2>/dev/null || echo "  Alerts table already exists"
+  2>/dev/null || echo "  Alerts table already exists"
 
 echo "  DynamoDB tables created ✓"
 
@@ -67,7 +67,7 @@ awslocal kinesis create-stream \
   --stream-name telemetry-stream \
   --shard-count 2 \
   --region $REGION \
-  --no-cli-pager 2>/dev/null || echo "  Stream already exists"
+  2>/dev/null || echo "  Stream already exists"
 
 echo "  Kinesis stream created ✓"
 
@@ -121,7 +121,7 @@ for i in $(seq 1 15); do
       \"updatedAt\": {\"N\": \"${NOW}\"}
     }" \
     --region $REGION \
-    --no-cli-pager 2>/dev/null || true
+    2>/dev/null || true
 done
 
 echo "  Demo vehicles seeded ✓"
@@ -148,7 +148,7 @@ for TYPE in speeding geofence fuel_low; do
       \"createdAt\": {\"N\": \"${NOW}\"}
     }" \
     --region $REGION \
-    --no-cli-pager 2>/dev/null || true
+    2>/dev/null || true
 done
 
 echo "  Demo alerts seeded ✓"

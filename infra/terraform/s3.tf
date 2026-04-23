@@ -36,6 +36,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "data_lake" {
   rule {
     id     = "archive-old-telemetry"
     status = "Enabled"
+    filter {}
     transition {
       days          = 30
       storage_class = "STANDARD_IA"

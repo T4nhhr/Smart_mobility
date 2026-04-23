@@ -6,7 +6,10 @@ resource "aws_cloudwatch_dashboard" "main" {
     widgets = [
       {
         type   = "metric"
-        x = 0; y = 0; width = 12; height = 6
+        x = 0
+        y = 0
+        width = 12
+        height = 6
         properties = {
           title  = "API Request Count"
           view   = "timeSeries"
@@ -18,7 +21,10 @@ resource "aws_cloudwatch_dashboard" "main" {
       },
       {
         type   = "metric"
-        x = 12; y = 0; width = 12; height = 6
+        x = 12
+        y = 0
+        width = 12
+        height = 6
         properties = {
           title  = "API Latency P99"
           view   = "timeSeries"
@@ -30,7 +36,10 @@ resource "aws_cloudwatch_dashboard" "main" {
       },
       {
         type   = "metric"
-        x = 0; y = 6; width = 8; height = 6
+        x = 0
+        y = 6
+        width = 8
+        height = 6
         properties = {
           title  = "ECS CPU Utilization"
           view   = "timeSeries"
@@ -42,7 +51,10 @@ resource "aws_cloudwatch_dashboard" "main" {
       },
       {
         type   = "metric"
-        x = 8; y = 6; width = 8; height = 6
+        x = 8
+        y = 6
+        width = 8
+        height = 6
         properties = {
           title  = "Kinesis Incoming Records"
           view   = "timeSeries"
@@ -54,7 +66,10 @@ resource "aws_cloudwatch_dashboard" "main" {
       },
       {
         type   = "metric"
-        x = 16; y = 6; width = 8; height = 6
+        x = 16
+        y = 6
+        width = 8
+        height = 6
         properties = {
           title  = "DynamoDB Consumed Write Capacity"
           view   = "timeSeries"

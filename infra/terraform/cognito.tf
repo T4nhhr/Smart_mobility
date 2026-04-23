@@ -27,14 +27,20 @@ resource "aws_cognito_user_pool" "main" {
     attribute_data_type      = "String"
     required                 = true
     mutable                  = true
-    string_attribute_constraints { min_length = 5; max_length = 256 }
+    string_attribute_constraints {
+      min_length = 5
+      max_length = 256
+    }
   }
 
   schema {
     name               = "role"
     attribute_data_type = "String"
     mutable            = true
-    string_attribute_constraints { min_length = 1; max_length = 20 }
+    string_attribute_constraints {
+      min_length = 1
+      max_length = 20
+    }
   }
 
   # Email verification

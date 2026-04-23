@@ -102,8 +102,6 @@ resource "aws_apigatewayv2_route" "protected" {
 
   api_id             = aws_apigatewayv2_api.main.id
   route_key          = each.value
-  authorization_type = "JWT"
-  authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
   target             = "integrations/${aws_apigatewayv2_integration.alb.id}"
 }
 
@@ -120,6 +118,7 @@ resource "aws_apigatewayv2_stage" "prod" {
 
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_gateway.arn
+    format          = "$context.identity.sourceIp - - [$context.requestTime] \"$context.httpMethod $context.routeKey $context.protocol\" $context.status $context.responseLength $context.requestId"
   }
 
   tags = { Environment = var.environment }

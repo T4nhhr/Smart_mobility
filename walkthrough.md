@@ -103,7 +103,8 @@ Users → CloudFront → S3 (React SPA)
 | `terraform/lambda.tf` | Processor (Kinesis trigger) + analytics (EventBridge schedule) |
 | `terraform/s3.tf` | Frontend bucket + CloudFront OAC, data lake with lifecycle |
 | `terraform/cloudwatch.tf` | Dashboard, alarms for 5xx, CPU, Lambda errors |
-| `localstack/init-aws.sh` | Bootstrap DynamoDB tables, Kinesis, S3, seed 15 demo vehicles |
+| `localstack/init-aws.sh` | Bootstrap DynamoDB tables, Kinesis, S3, seed 15 demo vehicles (Linux) |
+| `localstack/init-aws.ps1` | Bootstrap DynamoDB tables, Kinesis, S3, seed 15 demo vehicles (Windows) |
 | `localstack/simulator.js` | 20 virtual vehicles with realistic GPS movement |
 
 ### Lambda (`lambda/`)
@@ -118,7 +119,8 @@ Users → CloudFront → S3 (React SPA)
 
 ```bash
 # Option 1: Full Docker stack (recommended)
-chmod +x infra/localstack/init-aws.sh
+# Note: On Linux/macOS, ensure the init script is executable: chmod +x infra/localstack/init-aws.sh
+# On Windows, you can manually initialize LocalStack using the PowerShell script: .\infra\localstack\init-aws.ps1
 docker-compose up --build
 
 # Option 2: Backend only
@@ -142,7 +144,7 @@ The infrastructure is entirely codified using Terraform and relies on AWS servic
 First, create an Amazon Elastic Container Registry (ECR) repository to hold the backend API image.
 ```bash
 # Authenticate Docker to your AWS ECR
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <YOUR_AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+aws ecr get-login-password --region us-west-3 | docker login --username AWS --password-stdin <YOUR_AWS_ACCOUNT_ID>.dkr.ecr.us-west-3.amazonaws.com
 
 # Create an ECR repository
 aws ecr create-repository --repository-name urbanmove-api --region us-east-1
