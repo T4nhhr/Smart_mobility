@@ -44,33 +44,73 @@ Before recording, ensure the following are ready:
 
 ---
 
-## Opening (~1 minute)
+## Opening (~2 minutes)
+
+### Sub-Timing
+| Time | Action |
+|------|--------|
+| 0:00–0:30 | Show architecture diagram, introduce the project |
+| 0:30–1:15 | Walk through the data flow on the diagram |
+| 1:15–2:00 | Summarize the scope and transition to Scenario 1 |
 
 ### Narration
 
-> "Hello everyone. Today we're going to walk through the cloud architecture implementation of UrbanMove — a Cloud Native Smart Mobility Management Platform built for a fictional city authority. Instead of focusing on what the application does, we'll focus on **how it's built on AWS** — the infrastructure decisions, the cloud services, and the architectural patterns that make this system production-ready."
+> "Hello everyone. Today we're going to walk through the cloud architecture implementation of **UrbanMove** — a Cloud Native Smart Mobility Management Platform built for a fictional city authority called UrbanMove."
+>
+> "Instead of focusing on the application features — dashboards, maps, vehicle tracking — we're going to focus entirely on **how the system is built on AWS**: the infrastructure decisions, the cloud services, and the architectural patterns that make this system production-ready, scalable, and secure."
+>
+> *(Show architecture diagram full-screen)*
+>
+> "Here is our production architecture. Let me walk you through the data flow. When a user opens the platform, their browser loads the React SPA from an **S3 bucket** served through **CloudFront** CDN. Every API call goes through **API Gateway**, which validates the user's JWT token using **AWS Cognito** before forwarding the request through a **VPC Link** to the **Application Load Balancer**. The ALB routes the request to one of our **ECS Fargate** containers running in a private subnet."
+>
+> "For real-time GPS data, the API publishes events to **Amazon Kinesis**, which triggers a **Lambda function** that writes to **DynamoDB** and archives the raw data to an **S3 Data Lake**. A second Lambda runs every 5 minutes to compute analytics. Everything is monitored by **CloudWatch**."
+>
+> "The entire system — all of this — is codified in **13 Terraform files**. There is zero manual console configuration. Let me show you."
 
 ### Screen Actions
 
-1. Show the architecture diagram (`architecture.png`) full-screen
-2. Briefly annotate the flow: Users → CloudFront → S3 → API Gateway → ALB → ECS Fargate → DynamoDB / Kinesis → Lambda → S3 Data Lake
+1. **[0:00]** Show the architecture diagram (`architecture.png`) full-screen. Keep it visible while narrating.
+2. **[0:30]** Use your cursor or annotation tool to trace the flow as you speak:
+   - Start at "Users" → follow arrow to CloudFront → S3
+   - Then trace API Gateway → VPC Link → ALB → ECS Fargate
+   - Then trace Kinesis → Lambda → DynamoDB + S3 Data Lake
+   - Point to CloudWatch at the bottom
+3. **[1:15]** Leave the diagram on screen as you transition
 
 ### Talking Points
 
 - This is a multi-tier, cloud-native architecture deployed entirely on AWS
 - Every component is codified using Terraform — zero manual console configuration
 - The system spans **13 Terraform files**, **4 DynamoDB tables**, **2 Lambda functions**, **2 S3 buckets**, and a full VPC with public/private subnets
+- Emphasize: *"We will show both the code AND the live AWS Console for every component"*
+
+### Transition
+
+> "Let's start with the foundation — how all of this infrastructure is defined as code."
 
 ---
 
-## Scenario 1: Infrastructure-as-Code with Terraform (~4 minutes)
+## Scenario 1: Infrastructure-as-Code with Terraform (~5 minutes)
+
+### Sub-Timing
+| Time | Action |
+|------|--------|
+| 0:00–1:00 | Show Terraform directory structure and explain each file |
+| 1:00–2:00 | Open `variables.tf`, explain parameterization |
+| 2:00–3:00 | Run `terraform plan` in terminal, walk through output |
+| 3:00–4:00 | Switch to AWS Console → Resource Groups / Tag Editor |
+| 4:00–5:00 | Show tags on a DynamoDB table, transition to Scenario 2 |
 
 ### Purpose
 Demonstrate that the entire cloud infrastructure is reproducible, version-controlled, and automated.
 
 ### Narration
 
-> "The foundation of our cloud architecture is Infrastructure-as-Code. Every single AWS resource — from the VPC to the CloudWatch alarms — is defined declaratively in Terraform. Let me show you the structure."
+> "The foundation of our cloud architecture is Infrastructure-as-Code. Every single AWS resource — from the VPC to the CloudWatch alarms — is defined declaratively in Terraform using HashiCorp Configuration Language."
+>
+> "What this means in practice is that we can destroy this entire platform with one command and rebuild it identically in 15 minutes. There is no clicking through the AWS Console — everything is automated, version-controlled in Git, and goes through code review before deployment."
+>
+> "Let me show you the structure."
 
 ### Screen Actions
 
@@ -117,6 +157,7 @@ Demonstrate that the entire cloud infrastructure is reproducible, version-contro
 
 ### Talking Points
 
+- **Key phrase to say:** *"If it's not in Terraform, it doesn't exist. Every resource you'll see in the AWS Console today was created by these files."*
 - **13 Terraform files** cover every layer of the architecture
 - `terraform plan` previews all changes before applying — safe, auditable deployments
 - The same code can spin up identical environments for dev, staging, and production
@@ -125,14 +166,34 @@ Demonstrate that the entire cloud infrastructure is reproducible, version-contro
 
 ---
 
-## Scenario 2: Containerized Deployment on ECS Fargate (~4 minutes)
+### Transition
+
+> "Now that we've seen how the infrastructure is defined, let's zoom into the compute layer — how our application code gets packaged and deployed."
+
+---
+
+## Scenario 2: Containerized Deployment on ECS Fargate (~5 minutes)
+
+### Sub-Timing
+| Time | Action |
+|------|--------|
+| 0:00–1:00 | Show Dockerfile, explain multi-stage build |
+| 1:00–2:00 | Open `ecs.tf`, explain cluster/task definition/service |
+| 2:00–2:30 | Show IAM task policy (least privilege) |
+| 2:30–3:00 | Show `docker-compose.yml` local parity |
+| 3:00–4:00 | AWS Console: ECS Cluster → Service → Tasks |
+| 4:00–5:00 | AWS Console: ECR repository, deployments tab |
 
 ### Purpose
 Show how the backend API is containerized and deployed as a serverless container on AWS ECS Fargate.
 
 ### Narration
 
-> "Our backend runs as a containerized Node.js API on ECS Fargate. Fargate is serverless — we don't manage any EC2 instances. Let me walk through the deployment pipeline."
+> "Our backend API is a Node.js Express application. But we don't deploy it directly — we containerize it using Docker and run it on **AWS ECS Fargate**."
+>
+> "Fargate is serverless compute for containers. Unlike traditional EC2, we don't provision or manage any virtual machines. We just define how much CPU and memory we need, and AWS handles the rest — patching, scaling, and host management."
+>
+> "Let me walk through the deployment pipeline, starting with the Dockerfile."
 
 ### Screen Actions
 
@@ -166,8 +227,8 @@ Show how the backend API is containerized and deployed as a serverless container
 3. **Show the ECS task policy** (`ecs_task_policy`):
    ```
    ✅ DynamoDB: PutItem, GetItem, Query, Scan, UpdateItem, DeleteItem (scoped to 4 tables + indexes)
-   ✅ Kinesis: PutRecord, PutRecords (scoped to telemetry stream)
-   ✅ CloudWatch Logs: CreateLogStream, PutLogEvents (scoped to ECS log group)
+   ✅ Kinesis: PutRecord, PutRecords (scoped to the single telemetry stream ARN)
+   ✅ CloudWatch Logs: CreateLogStream, PutLogEvents (scoped to ECS log group ARN)
    ❌ No S3 access, no IAM modification — least privilege enforced
    ```
 
@@ -179,13 +240,18 @@ Show how the backend API is containerized and deployed as a serverless container
 ### 🌐 AWS Console Steps
 
 5. **Switch to browser → ECS Clusters** (Tab 5):
-   > "Let me show you the live ECS cluster in the AWS Console."
+   > "Now let me switch to the AWS Console to show you this cluster running live."
+   > *(Switch to browser, click Tab 5)*
    - Click on `urbanmove-cluster` → show **Cluster overview**: running tasks count, pending tasks, Container Insights status
    - Click **Services** tab → show `urbanmove-api-service` with desired count = 2, running count = 2
 
-6. **Click into the Service** → **Tasks** tab:
-   - Show the 2 running tasks distributed across different Availability Zones
-   - Click on a task → show **Task detail**: task definition revision, launch type (FARGATE), CPU/memory, private IP (no public IP)
+6. **Click into the Service** → click **Tasks** tab:
+   > "You can see 2 tasks running. Let me click into one."
+   - Show the 2 running tasks — point out the **different Availability Zone** assignments (e.g., `us-east-1a` and `us-east-1b`)
+   - Click on a task → show **Task detail** page:
+     - Point to: Task definition revision, Launch type = `FARGATE`, CPU = 512, Memory = 1024
+     - Point to: **Private IP** (e.g., `10.0.11.x`) — emphasize there is **no public IP**
+     > "Notice this task has a private IP in the 10.0.11.x range — that's our private subnet. There is no public IP. This container is completely unreachable from the internet directly."
    - Scroll to **Containers** section → show container health status: `HEALTHY`
 
 7. **Click the Service → Deployments** tab:
@@ -193,9 +259,11 @@ Show how the backend API is containerized and deployed as a serverless container
    - Show deployment status: PRIMARY with `deployment_minimum_healthy_percent = 100`
 
 8. **Navigate to ECR** (Tab 8):
-   - Show the `urbanmove-api` repository
-   - Click into it → show the pushed Docker image with tag, size, and push date
-   > "This is the container image that ECS pulls. It was built from our multi-stage Dockerfile and pushed via CI."
+   > *(Click Tab 8)*
+   - Show the `urbanmove-api` repository in the list
+   - Click into it → show the image list with columns: **Image tag** (`latest`), **Size** (~80 MB), **Pushed at** (date)
+   > "This is the Docker image that ECS pulls when it launches a task. It was built from our multi-stage Dockerfile. Notice the size — about 80 MB. That's because the production stage only includes production dependencies, not devDependencies."
+   > "When we push a new image and update the task definition, ECS performs a rolling deployment — launching new tasks with the new image before draining the old ones."
 
 ### Talking Points
 
@@ -205,16 +273,36 @@ Show how the backend API is containerized and deployed as a serverless container
 - **Local development parity**: `docker-compose` mirrors the production architecture using LocalStack
 - The task definition injects all configuration via environment variables — no secrets in code
 
+### Transition
+
+> "Now let's look at the network that all of this runs inside — the VPC."
+
 ---
 
-## Scenario 3: VPC Networking & Security Zones (~3 minutes)
+## Scenario 3: VPC Networking & Security Zones (~5 minutes)
+
+### Sub-Timing
+| Time | Action |
+|------|--------|
+| 0:00–1:00 | Show `vpc.tf` subnet layout and explain public vs private |
+| 1:00–1:30 | Explain security groups and SG chaining |
+| 1:30–2:00 | Show VPC Endpoints and NAT Gateways in code |
+| 2:00–2:30 | Show VPC Link in `api_gateway.tf` |
+| 2:30–3:15 | AWS Console: VPC → Subnets → show public vs private |
+| 3:15–4:00 | AWS Console: Security Groups → show SG chaining |
+| 4:00–4:30 | AWS Console: VPC Endpoints |
+| 4:30–5:00 | AWS Console: ALB → Target Groups → healthy targets |
 
 ### Purpose
 Demonstrate the network isolation and security architecture.
 
 ### Narration
 
-> "Security starts at the network level. Our VPC is designed with strict isolation — the API containers never have public IP addresses and are only reachable through the load balancer."
+> "Security starts at the network level. Let me show you how our Virtual Private Cloud is designed."
+>
+> "The key principle here is **network isolation**. Our API containers run in private subnets — they have no public IP addresses and are completely unreachable from the internet. The only way to reach them is through the Application Load Balancer, which itself is only accessible through the API Gateway."
+>
+> "Let me show you the Terraform code first, then we'll verify it in the AWS Console."
 
 ### Screen Actions
 
@@ -260,7 +348,8 @@ Demonstrate the network isolation and security architecture.
 ### 🌐 AWS Console Steps
 
 6. **Switch to browser → VPC Dashboard** (Tab 1):
-   > "Let's verify the VPC design in the AWS Console."
+   > "Now let's switch to the AWS Console to verify everything we just saw in the code."
+   > *(Click Tab 1)*
    - Click on the `urbanmove-vpc` → show CIDR `10.0.0.0/16`, DNS hostnames enabled
 
 7. **Navigate to Subnets** (Tab 2):
@@ -270,9 +359,12 @@ Demonstrate the network isolation and security architecture.
    > "Notice the public subnets have 'Auto-assign public IP' enabled, but the private subnets do not."
 
 8. **Navigate to Security Groups** (Tab 3):
-   - Click `urbanmove-alb-sg` → **Inbound rules**: port 80 and 443 from `0.0.0.0/0`
-   - Click `urbanmove-ecs-sg` → **Inbound rules**: port 3000 from **source = `urbanmove-alb-sg`**
-   > "This is security group chaining — the ECS containers only accept traffic from the ALB, never from the internet directly."
+   > "Now this is the most important part of the network security."
+   > *(Click Tab 3, filter by VPC = urbanmove-vpc)*
+   - Click `urbanmove-alb-sg` → click **Inbound rules** tab → show: port 80 and 443 from `0.0.0.0/0`
+   > "The ALB security group accepts traffic from anywhere on ports 80 and 443 — that's expected, it's the public entry point."
+   - Now click `urbanmove-ecs-sg` → click **Inbound rules** tab → show: port 3000 from **source = `urbanmove-alb-sg`** (not `0.0.0.0/0`)
+   > "Now look at the ECS security group. The source is NOT `0.0.0.0/0` — it's the ALB security group ID. This is called **security group chaining**. It means the ECS containers will only accept connections that come from the load balancer. Even if someone discovers the private IP of a container, they cannot connect to it directly."
 
 9. **Navigate to VPC Endpoints** (Tab 4):
    - Show the DynamoDB and S3 Gateway endpoints
@@ -282,8 +374,9 @@ Demonstrate the network isolation and security architecture.
 10. **Navigate to ALB** (Tab 9):
     - Show the load balancer in public subnets, across 2 AZs
     - Click **Listeners** → show HTTP:80 redirect to HTTPS:443
-    - Click **Target Groups** (Tab 10) → show the 2 healthy targets (ECS task IPs)
-    > "Both targets are healthy. If one fails the health check, the ALB stops routing to it automatically."
+    - Click **Target Groups** (Tab 10) → show the 2 registered targets with status `healthy`
+    - Point to the target IPs: they are private IPs (e.g., `10.0.11.47`, `10.0.12.23`)
+    > "Both targets are healthy. Notice the IP addresses — they're in the 10.0.11.x and 10.0.12.x ranges, which are our two private subnets. The ALB performs health checks every 15 seconds on `/health`. If a target fails 3 consecutive checks, the ALB automatically stops routing traffic to it."
 
 ### Talking Points
 
@@ -292,16 +385,36 @@ Demonstrate the network isolation and security architecture.
 - **VPC Endpoints** for DynamoDB and S3 eliminate data exfiltration risk — traffic stays on AWS backbone
 - **Multi-AZ**: NAT gateways, subnets, and ECS tasks are distributed across 2 Availability Zones
 
+### Transition
+
+> "Now that we understand the network, let's look at how data flows through the system — specifically the real-time streaming pipeline."
+
 ---
 
-## Scenario 4: Real-Time Data Streaming Pipeline (~4 minutes)
+## Scenario 4: Real-Time Data Streaming Pipeline (~5 minutes)
+
+### Sub-Timing
+| Time | Action |
+|------|--------|
+| 0:00–0:30 | Show data flow diagram, explain decoupled architecture |
+| 0:30–1:00 | Show `kinesis.tf` — shards, encryption, retention |
+| 1:00–1:45 | Show `lambda.tf` — trigger config, bisect-on-error |
+| 1:45–2:15 | Show `dynamodb.tf` — table design, GSI, TTL, PITR |
+| 2:15–2:45 | Show `s3.tf` — lifecycle policy |
+| 2:45–3:30 | AWS Console: Kinesis stream details + monitoring |
+| 3:30–4:15 | AWS Console: Lambda functions + triggers + invocations |
+| 4:15–5:00 | AWS Console: DynamoDB items + S3 lifecycle rule |
 
 ### Purpose
 Show the event-driven data pipeline: Kinesis → Lambda → DynamoDB + S3 Data Lake.
 
 ### Narration
 
-> "Now let's look at how we handle real-time mobility data at scale. When a vehicle sends GPS telemetry, it doesn't go straight to the database. Instead, it enters a streaming pipeline."
+> "Now let's look at the data layer — specifically how we handle real-time GPS telemetry at scale."
+>
+> "When a vehicle sends its GPS coordinates to our API, the data does NOT go straight to the database. That would create a tight coupling and a bottleneck. Instead, the API publishes the event to **Amazon Kinesis Data Streams**, which acts as a buffer. A **Lambda function** is triggered automatically to process the data in batches and write it to both **DynamoDB** for hot queries and **S3** for long-term archival."
+>
+> "This is an event-driven, decoupled architecture. Let me show you the code."
 
 ### Screen Actions
 
@@ -327,7 +440,7 @@ Show the event-driven data pipeline: Kinesis → Lambda → DynamoDB + S3 Data L
    bisect_batch_on_function_error = true
    maximum_retry_attempts        = 3
    ```
-   > "This is production-grade: if a batch fails, Lambda bisects it to find the poisoned record instead of retrying the entire batch."
+   > "Pay attention to these four settings — this is what separates a prototype from production. The `batch_size` of 100 means Lambda processes up to 100 records at once for efficiency. The `parallelization_factor` of 2 means Lambda can process 2 batches per shard concurrently. And crucially, `bisect_batch_on_function_error` means if a batch fails, Lambda splits it in half and retries each half separately — this isolates the one bad record without blocking the entire pipeline. And `maximum_retry_attempts` of 3 prevents infinite retry loops."
 
 4. **Open `lambda/processor/index.js`** — briefly show it:
    - Decodes base64 Kinesis records
@@ -369,9 +482,13 @@ Show the event-driven data pipeline: Kinesis → Lambda → DynamoDB + S3 Data L
    - Click `urbanmove-telemetry-processor` → show **Configuration**:
      - Runtime: Node.js 20.x, Memory: 256 MB, Timeout: 60s
    - Click **Triggers** → show the Kinesis trigger with batch size = 100
-   - Click **Monitoring** tab → show **Invocations**, **Duration**, and **Error count** graphs
-   > "The processor is being invoked automatically whenever new records arrive in Kinesis."
-   - Then click `urbanmove-analytics-aggregator` → show the **EventBridge trigger** (every 5 min)
+   - Click **Monitoring** tab → show 3 key graphs:
+     - **Invocations**: shows how often Lambda is triggered (should be continuous)
+     - **Duration**: shows processing time per batch (should be <1 second)
+     - **Error count**: should be 0 in normal operation
+   > "The processor is being invoked automatically every time new records arrive in Kinesis. You can see steady invocations here. Duration is under a second, and the error count is zero — the pipeline is healthy."
+   - Click back, then click `urbanmove-analytics-aggregator` → show the **Triggers** section with **EventBridge rule** (`rate(5 minutes)`)
+   > "This second Lambda is our analytics aggregator. It runs on a schedule — every 5 minutes — and computes fleet metrics like zone congestion and vehicle utilization."
 
 10. **Navigate to DynamoDB Tables** (Tab 13):
     - Click `Telemetry` table → **Overview** tab: show partition key, sort key, GSI
@@ -388,22 +505,41 @@ Show the event-driven data pipeline: Kinesis → Lambda → DynamoDB + S3 Data L
 
 ### Talking Points
 
+- **Key phrase to say:** *"The API never waits for the database. It publishes to Kinesis and returns immediately. This gives us sub-50ms API response times for data ingestion."*
 - **Decoupled ingestion**: API doesn't wait for database writes — fire-and-forget to Kinesis
 - **Automatic scaling**: Kinesis can switch to ON_DEMAND mode for unpredictable traffic
 - **Dual-write pattern**: Hot data in DynamoDB, cold data archived to S3 Data Lake
 - **Cost-optimized storage**: S3 lifecycle transitions reduce storage costs by ~80% after 90 days
 - **Fault tolerance**: bisect-on-error, retry limits, and DLQ-ready configuration
 
+### Transition
+
+> "We've seen how data flows through the system. But how do we know if something goes wrong? Let's look at observability."
+
 ---
 
-## Scenario 5: Observability & Monitoring (~3 minutes)
+## Scenario 5: Observability & Monitoring (~4 minutes)
+
+### Sub-Timing
+| Time | Action |
+|------|--------|
+| 0:00–0:45 | Show `cloudwatch.tf` dashboard definition and alarm configs |
+| 0:45–1:15 | Show log groups and access log format in code |
+| 1:15–1:30 | Show Container Insights in `ecs.tf` |
+| 1:30–2:30 | AWS Console: CloudWatch Dashboard (walk through all 5 widgets live) |
+| 2:30–3:15 | AWS Console: CloudWatch Alarms (show alarm graph and thresholds) |
+| 3:15–4:00 | AWS Console: CloudWatch Logs (open live ECS and Lambda logs) |
 
 ### Purpose
 Show the integrated monitoring, logging, and alerting infrastructure.
 
 ### Narration
 
-> "A production system without observability is flying blind. Let me show you the monitoring stack we've built into the infrastructure from day one."
+> "A production system without observability is flying blind. You need to know at any moment: how many requests are coming in, how fast they're being processed, whether the pipeline is healthy, and whether any errors are occurring."
+>
+> "We've built a full observability stack using CloudWatch — dashboards for visualization, alarms for automated alerting, and log groups for debugging. And all of it is defined in Terraform, deployed alongside the infrastructure."
+>
+> "Let me show you the code first, then the live dashboard."
 
 ### Screen Actions
 
@@ -452,24 +588,42 @@ Show the integrated monitoring, logging, and alerting infrastructure.
 ### 🌐 AWS Console Steps
 
 6. **Switch to browser → CloudWatch Dashboard** (Tab 17):
-   > "This is the live CloudWatch dashboard created by Terraform. Let me walk through each widget."
-   - Point to **API Request Count** widget → show requests per minute
-   - Point to **API Latency P99** widget → show response time distribution
-   - Point to **ECS CPU Utilization** widget → show current CPU % across tasks
+   > "Now let me switch to the AWS Console and show you the live dashboard."
+   > *(Click Tab 17 — the dashboard should load immediately with all 5 widgets)*
+   > "This dashboard was created entirely by Terraform — we defined every widget in `cloudwatch.tf`. Let me walk through each one."
+   - **Top-left widget**: Point to **API Request Count** → hover to show per-minute request volume
+   > "This shows how many API requests are hitting our system per minute. You can see the pattern — steady traffic from the simulator."
+   - **Top-right widget**: Point to **API Latency P99** → show the 99th percentile response time
+   > "P99 latency tells us the worst-case response time for 99% of requests. Anything under 200ms is good."
+   - **Bottom-left widget**: Point to **ECS CPU Utilization** → show current percentage
    - Point to **Kinesis Incoming Records** → show streaming throughput
    - Point to **DynamoDB Write Capacity** → show write consumption for Telemetry table
    > "All five widgets update in real-time. This single dashboard gives operators a complete system overview."
 
 7. **Navigate to CloudWatch Alarms** (Tab 18):
-   - Show the 3 alarms: `urbanmove-api-5xx-errors`, `urbanmove-ecs-cpu-high`, `urbanmove-lambda-processor-errors`
-   - Click on `urbanmove-ecs-cpu-high` → show the **alarm graph**, threshold line at 85%, and evaluation period
-   > "When CPU stays above 85% for 3 consecutive minutes, this alarm fires. You could connect it to SNS for email or Slack notifications."
-   - Show current state: `OK` / `INSUFFICIENT_DATA` / `IN ALARM`
+   > *(Click Tab 18)*
+   - Show all 3 alarms in the list with their current state (green = OK, grey = INSUFFICIENT_DATA, red = IN ALARM)
+   > "We have 3 automated alarms. Let me click into one to show you how they work."
+   - Click on `urbanmove-ecs-cpu-high` → show the **alarm detail** page:
+     - Point to the **graph** with the metric line and the **red threshold line at 85%**
+     - Point to the **evaluation period**: 3 × 60 seconds
+   > "This alarm monitors ECS CPU utilization. If the average CPU stays above 85% for 3 consecutive minutes, the alarm fires. Right now the state is OK because our CPU is well below 85%. In production, you would connect this to an SNS topic that sends email or Slack notifications to the ops team."
+   - Click back → briefly click `urbanmove-api-5xx-errors` to show its threshold (>10 errors in 2 minutes)
+   > "This one monitors server errors. If we get more than 10 HTTP 5xx responses in 2 minutes, something is seriously wrong."
 
 8. **Navigate to CloudWatch Log Groups** (Tab 19):
-   - Show the 5 log groups with their retention policies
-   - Click `/ecs/urbanmove/api` → click a recent **Log stream** → show live application logs (request logs, startup messages)
-   > "These are the live container logs from our ECS tasks — the same output you'd see with `docker logs`, but persisted and searchable."
+   > *(Click Tab 19)*
+   - Show the list of 5 log groups — point to the **Retention** column showing differentiated policies:
+     - `/ecs/urbanmove/api` → 30 days
+     - `/aws/lambda/urbanmove-processor` → 14 days
+     - `/aws/lambda/urbanmove-analytics` → 14 days
+     - `/aws/apigateway/urbanmove` → 30 days
+     - `/aws/cloudfront/urbanmove` → 30 days
+   > "Notice the different retention policies. ECS and API logs are kept for 30 days because they're needed for debugging and audit. Lambda logs are 14 days because they're higher volume but less critical for long-term retention. This is a cost optimization — CloudWatch charges per GB of log storage."
+   - Click `/ecs/urbanmove/api` → click the most recent **Log stream** → show live log entries:
+     - Point to startup messages (Express listening on port 3000)
+     - Point to incoming request logs (method, path, status code, response time)
+   > "These are the live container logs from our ECS tasks. You can see every API request being logged with its method, path, status code, and response time. This is the same output you'd see with `docker logs`, but it's persisted, searchable, and survives container restarts."
    - Click `/aws/lambda/urbanmove-processor` → show a recent Lambda invocation log with batch processing output
 
 ### Talking Points
@@ -479,17 +633,36 @@ Show the integrated monitoring, logging, and alerting infrastructure.
 - **Container Insights** provides CPU, memory, network, and disk metrics per ECS task
 - **Access logging** on API Gateway enables request tracing and audit trails
 - All monitoring is deployed alongside infrastructure — not added as an afterthought
+- **Key phrase to say:** *"Every metric, alarm, and log group you see in the console was created by `cloudwatch.tf`. If we tear down and redeploy, all of this monitoring comes back automatically."*
+
+### Transition
+
+> "Now let's look at security — how we protect the system at every layer."
 
 ---
 
-## Scenario 6: Security Architecture (~4 minutes)
+## Scenario 6: Security Architecture (~5 minutes)
+
+### Sub-Timing
+| Time | Action |
+|------|--------|
+| 0:00–0:45 | Show `cognito.tf` — user pool, MFA, groups |
+| 0:45–1:15 | Show `api_gateway.tf` — JWT authorizer, route split |
+| 1:15–1:45 | Show `ecs.tf` — IAM task policy (least privilege) |
+| 1:45–2:15 | Recap VPC isolation + show encryption across files |
+| 2:15–2:45 | Show rate limiting config + security summary table |
+| 2:45–3:30 | AWS Console: Cognito User Pool (groups, MFA, password policy) |
+| 3:30–4:15 | AWS Console: API Gateway (routes, authorizer, throttling) |
+| 4:15–5:00 | AWS Console: IAM Roles (inline policies, least privilege) |
 
 ### Purpose
 Demonstrate the multi-layered security design: authentication, authorization, encryption, and network protection.
 
 ### Narration
 
-> "Security is not a single feature — it's an architecture property. Let me walk through the six security layers we've implemented."
+> "Security is not a single feature — it's an architecture property. It has to be built into every layer of the system, from the network to the API to the data storage."
+>
+> "We've implemented six distinct security layers. I'll show you each one in the Terraform code, and then we'll verify the most important ones live in the AWS Console."
 
 ### Screen Actions
 
@@ -561,23 +734,32 @@ Demonstrate the multi-layered security design: authentication, authorization, en
 ### 🌐 AWS Console Steps
 
 7. **Switch to browser → Cognito User Pools** (Tab 12):
-   > "Let's verify the authentication layer in the console."
-   - Click the `urbanmove-user-pool` → **Sign-in experience** tab:
-     - Show sign-in with email, MFA = Optional (TOTP)
-   - Click **Security** tab → show password policy (8+ chars, uppercase, numbers, symbols)
-   - Click **Groups** tab → show the 3 groups: Admin, Operator, Viewer with precedence values
+   > "Let's verify the authentication layer live."
+   > *(Click Tab 12)*
+   - Click the `urbanmove-user-pool` → click **Sign-in experience** tab:
+     - Point to: Sign-in with **email**, MFA = **Optional (TOTP)**
+   > "Users sign in with their email. MFA is optional but supported — they can set up a TOTP authenticator app like Google Authenticator for an extra layer of security."
+   - Click **Security** tab → point to password policy requirements:
+     - Minimum 8 characters, must include uppercase, numbers, and symbols
+   > "The password policy enforces strong passwords. Cognito also has built-in brute force protection — it locks accounts after repeated failed attempts."
+   - Click **Groups** tab → show the 3 groups in a list:
+     - Admin (precedence 1), Operator (precedence 2), Viewer (precedence 3)
+   > "We have three role groups. Admin has full access, Operator can manage fleet data, and Viewer can only read dashboards. These map to the RBAC logic in our application."
    - Click **Users** tab → show registered users and their group membership
    - Click **App integration** tab → show the app client and hosted UI domain
    > "Cognito handles all user management — registration, login, password reset, MFA — so our application code doesn't need to."
 
 8. **Navigate to API Gateway** (Tab 11):
-   - Click `urbanmove-api` → **Authorization** section:
-     - Show the `cognito-authorizer` with JWT configuration
-   - Click **Routes** → show the route table:
-     - Point out public routes (no authorizer): `/auth/{proxy+}`, `/health`
-     - Point out protected routes (with Cognito authorizer): `/vehicles`, `/analytics/*`, etc.
-   - Click **Stages** → show `$default` stage with throttling: burst = 1000, rate = 500
-   > "The API Gateway acts as the front door — it validates JWTs and enforces rate limits before any request reaches our containers."
+   > *(Click Tab 11)*
+   - Click `urbanmove-api` → click **Authorization** in the left sidebar:
+     - Show the `cognito-authorizer` — point to: type = JWT, identity source = `$request.header.Authorization`
+   > "This JWT authorizer checks every request for a valid Cognito token. If the token is missing, expired, or invalid, the request is rejected right here — it never reaches our containers."
+   - Click **Routes** in the left sidebar → show the full route table:
+     - Scroll through and point out the **public routes** (no lock icon): `/auth/{proxy+}`, `GET /health`, `POST /telemetry`
+     - Point out the **protected routes** (lock icon): `GET /vehicles`, `GET /analytics/*`, `PUT /alerts/{id}/acknowledge`, etc.
+   > "You can see which routes are public and which require authentication. The telemetry ingestion endpoint is public because it's called by IoT devices that authenticate differently. Everything else requires a JWT."
+   - Click **Stages** → click `$default` → show **Throttling**: burst = 1000, rate = 500
+   > "Rate limiting is set at 500 requests per second with a burst of 1000. This protects the backend from DDoS attacks and runaway clients."
    - Click **VPC Links** → show the VPC Link connecting to the private subnets
 
 9. **Navigate to IAM Roles** (Tab 21):
@@ -590,21 +772,41 @@ Demonstrate the multi-layered security design: authentication, authorization, en
 
 ### Talking Points
 
+- **Key phrase to say:** *"Every security control you just saw in the console was created by Terraform. If someone manually disables MFA or changes a security group rule, we can detect the drift and restore it with `terraform apply`."*
 - Every security control is codified — no manual console configuration that could drift
 - Defense in depth: compromise of one layer doesn't expose the entire system
 - User enumeration protection prevents attackers from discovering valid email addresses
 - Encryption covers data at rest (KMS) and in transit (HTTPS/TLS)
 
+### Transition
+
+> "The final pillar is scalability and cost — how this architecture grows under load and how we keep costs under control."
+
 ---
 
-## Scenario 7: Scalability, High Availability & Cost Optimization (~3 minutes)
+## Scenario 7: Scalability, High Availability & Cost Optimization (~4 minutes)
+
+### Sub-Timing
+| Time | Action |
+|------|--------|
+| 0:00–0:45 | Show auto-scaling config in `ecs.tf`, explain scaling behavior |
+| 0:45–1:15 | Show multi-AZ diagram, explain HA |
+| 1:15–1:45 | Show cost optimization table (Fargate Spot, DynamoDB on-demand, S3 lifecycle) |
+| 1:45–2:15 | Show disaster recovery (PITR, S3 versioning, Terraform rebuild) |
+| 2:15–2:45 | AWS Console: ECS Auto Scaling tab + task AZ distribution |
+| 2:45–3:15 | AWS Console: CloudFront distribution (PriceClass, OAC) |
+| 3:15–4:00 | AWS Console: DynamoDB PITR + S3 versioning |
 
 ### Purpose
 Show the auto-scaling configuration, multi-AZ deployment, disaster recovery, and cost optimization strategies.
 
 ### Narration
 
-> "The final pillar is making sure this architecture can grow, survive failures, and remain cost-efficient. Let me show the three mechanisms we've built in."
+> "The final pillar is making sure this architecture can grow under load, survive failures, and remain cost-efficient."
+>
+> "We've addressed this with four strategies: auto-scaling for compute, multi-AZ deployment for high availability, tiered storage for cost optimization, and point-in-time recovery for disaster recovery."
+>
+> "Let me show you each one."
 
 ### Screen Actions
 
@@ -663,9 +865,11 @@ Show the auto-scaling configuration, multi-AZ deployment, disaster recovery, and
 ### 🌐 AWS Console Steps
 
 5. **Switch to browser → ECS Service** (Tab 6):
-   > "Let me show the auto-scaling configuration live."
-   - Click `urbanmove-api-service` → **Auto Scaling** tab
-   - Show the scaling policy: target = 70% CPU, min = 2, max = 10
+   > "Let me show the auto-scaling configuration live in the console."
+   > *(Click Tab 6, click into `urbanmove-api-service`)*
+   - Click **Auto Scaling** tab → show the scaling policy details:
+     - Point to: Minimum = 2, Maximum = 10, Target CPU = 70%
+     - Point to: Scale-out cooldown = 60s, Scale-in cooldown = 300s
    - Show current task count and scaling activity history
    > "Right now we have 2 tasks. If CPU exceeds 70%, ECS will automatically launch new tasks — up to 10."
 
@@ -686,9 +890,10 @@ Show the auto-scaling configuration, multi-AZ deployment, disaster recovery, and
    > "We can restore this table to any second within the last 35 days. That gives us an RPO of effectively zero."
 
 9. **Navigate to S3** (Tab 16):
-   - Click `urbanmove-frontend-*` bucket → **Properties** tab → show **Versioning: Enabled**
-   - Show **Versions** toggle on the Objects tab → display previous versions of deployed files
-   > "Even if we deploy a broken frontend, we can instantly roll back to any previous version."
+   > *(Click Tab 16)*
+   - Click `urbanmove-frontend-*` bucket → click **Properties** tab → scroll to **Bucket Versioning** section → show **Enabled**
+   - Click **Objects** tab → toggle **Show versions** → display previous versions of deployed files (e.g., multiple versions of `index.html`)
+   > "Every time we deploy a new frontend build, S3 keeps the previous version. If we deploy a broken release, we can instantly restore the previous version — or even roll back automatically with a CloudFront invalidation."
 
 ### Talking Points
 
@@ -696,16 +901,21 @@ Show the auto-scaling configuration, multi-AZ deployment, disaster recovery, and
 - **Min count = 2**: Ensures at least one task per AZ at all times
 - **DynamoDB on-demand**: Perfect for unpredictable traffic — pay only for what you use
 - **Everything is rebuildable**: Terraform + container image + DynamoDB PITR = full recovery
+- **Key phrase to say:** *"This entire infrastructure can be destroyed with `terraform destroy` and rebuilt with `terraform apply` in under 15 minutes. That's the ultimate disaster recovery."*
 
 ---
 
-## Closing (~1 minute)
+## Closing (~2 minutes)
 
 ### Narration
 
-> "To summarize — this is a cloud-native architecture that addresses all six pillars required by the project specification:"
+> "Let me bring up the architecture diagram one more time."
+>
+> *(Switch back to the architecture diagram)*
+>
+> "To summarize — this is a cloud-native architecture that addresses all six pillars required by the project specification. Let me map each one."
 
-### Show Summary Slide
+### Show Summary Slide (leave on screen while narrating)
 
 | Requirement | How We Address It |
 |-------------|-------------------|
@@ -716,9 +926,25 @@ Show the auto-scaling configuration, multi-AZ deployment, disaster recovery, and
 | **Observability** | CloudWatch dashboard, 3 alarms, 5 log groups, Container Insights, access logging |
 | **Disaster Recovery** | DynamoDB PITR, S3 versioning, Terraform IaC, RPO ~1s / RTO ~15min |
 
-> "Every single resource is codified in Terraform. The entire platform can be torn down with `terraform destroy` and rebuilt with `terraform apply` in under 15 minutes. That's the power of cloud-native, Infrastructure-as-Code architecture."
+> *(Read through each row of the table slowly, pointing to the relevant part of the architecture diagram for each one)*
+>
+> "Scalability — ECS auto-scaling from 2 to 10 tasks, DynamoDB on-demand billing, and Kinesis sharding."
+>
+> "High Availability — Multi-AZ VPC with redundant NAT gateways, ALB health checks, and rolling deployments."
+>
+> "Security — Six layers: Cognito authentication, JWT authorization, IAM least privilege, network isolation, KMS encryption, and API rate limiting."
+>
+> "Cost Optimization — Fargate Spot for 30% of compute, S3 lifecycle policies that move data to Glacier after 90 days, and DynamoDB pay-per-request billing."
+>
+> "Observability — A CloudWatch dashboard with 5 live widgets, 3 automated alarms, 5 log groups with differentiated retention, and Container Insights."
+>
+> "Disaster Recovery — DynamoDB point-in-time recovery with RPO of effectively zero, S3 versioning for instant frontend rollback, and the ability to rebuild the entire infrastructure from Terraform in 15 minutes."
+>
+> "And the most important point: **every single resource** you saw in the AWS Console today was created by Terraform. There was no manual configuration. The entire platform can be torn down with `terraform destroy` and rebuilt identically with `terraform apply` in under 15 minutes. That's the power of cloud-native, Infrastructure-as-Code architecture."
 
 ### Final Screen
+
+> *(Switch to terminal)*
 
 Show the terminal running:
 ```bash
@@ -726,7 +952,7 @@ terraform plan | tail -5
 # Plan: 35 to add, 0 to change, 0 to destroy.
 ```
 
-> "Thank you. Any questions?"
+> "Thank you for watching. We're happy to take any questions about the architecture, the implementation, or the cloud services we used."
 
 ---
 
